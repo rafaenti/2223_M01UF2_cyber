@@ -9,7 +9,9 @@ echo "Cliente HMTP"
 
 echo "(1) SEND - Enviando el Handshake"
 
-echo "GREEN_POWA $IP_LOCAL" | nc $IP_SERVER $PORT
+MD5_IP=`echo $IP_LOCAL | md5sum | cut -d " " -f 1`
+
+echo "GREEN_POWA $IP_LOCAL $MD5_IP" | nc $IP_SERVER $PORT
 
 echo "(2) LISTEN - Escuchando confirmación"
 
@@ -53,6 +55,24 @@ if [ "$MSG" != "OK_DATA_RCPT" ]
 then
 	echo "ERROR 3: Datos enviados incorrectamente"
 	exit 3
+fi
+
+
+echo "(13) SEND - MD5 de los datos"
+
+DATA_MD5=`cat memes/$FILE_NAME | md5sum | cut -d " " -f 1`
+
+echo "DATA_MD5 $DATA_MD5" | nc $IP_SERVER $PORT
+
+echo "(14) LISTEN - MD5 Comprobación"
+
+MSG=`nc -l $PORT`
+
+if [ "$MSG" != "OK_DATA_MD5" ]
+then
+	echo "ERROR 4: MD5 incorrecto"
+	echo "	Mensaje de error: $MSG"
+	exit 4
 fi
 
 
